@@ -1,0 +1,11 @@
+vsersion: v0
+scripts:
+  - name: 'name'
+    script: 'script'
+    timeout: 'timeout'
+    pattern: 'regex'
+    credentials:
+      host: 'host'
+      port: 22
+      user: 'user'
+      keyfile: '/path/to/your/private/key'
