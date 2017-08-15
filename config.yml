@@ -1,11 +1,11 @@
-vsersion: v0
+version: v0
 scripts:
   - name: 'name'
     script: 'script'
     timeout: 'timeout'
     pattern: 'regex'
     credentials:
-      host: 'host'
+    - host: 'localhost'
       port: 22
-      user: 'user'
-      keyfile: '/path/to/your/private/key'
+      user: 'exampleuser'
+      keyfile: '/home/bri4/.ssh/id_rsa'

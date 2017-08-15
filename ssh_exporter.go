@@ -1,13 +1,18 @@
-// Copyright 2017 Nordstrom. All rights reserved.
-
-//
-// Package ssh_exporter provides an HTTP endpoint to be consumed by Prometheus
-// which hosts pre-configured statistics found in config.yaml.
-//
 package main
 
+//
+// Copyright 2017 Nordstrom. All rights reserved.
+//
+
+//
+// Provides an HTTP endpoint to be consumed by Prometheus
+// which hosts pre-configured statistics found in config.yaml.
+//
+// Default endpoint: http://localhost:9382/probe?pattern=.*
+//
+
 import (
-	"./utils"
+	"./util"
 
 	"fmt"
 	"log"
@@ -19,8 +24,8 @@ import (
 //
 // Global variables
 //
-var configPath     string
-var servePort      string
+var configPath string
+var servePort string
 var loggingEnabled bool
 var patternHelpText = `<p>Please include a valid <code>?pattern=[regex]</code>
 query parameter in your URL. This should match the <bold>name</bold> of the
@@ -68,4 +73,3 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, response)
 	}
 }
-

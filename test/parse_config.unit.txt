@@ -1,0 +1,62 @@
+version: v0
+scripts:
+- name: test_simple
+  script: echo output script
+  timeout: 5s
+  pattern: output script
+  credentials:
+  - host: localhost
+    port: "2200"
+    user: vagrant
+    keyfile: .vagrant/machines/default/virtualbox/private_key
+    scriptresult: ""
+    scriptreturncode: 0
+    scripterror: ""
+    resultpatternmatch: 0
+  parsedtimeout: 5s
+  ignored: false
+- name: test_timeout
+  script: sleep 100
+  timeout: 1s
+  pattern: expect timeout
+  credentials:
+  - host: localhost
+    port: "2200"
+    user: vagrant
+    keyfile: .vagrant/machines/default/virtualbox/private_key
+    scriptresult: ""
+    scriptreturncode: 0
+    scripterror: ""
+    resultpatternmatch: 0
+  parsedtimeout: 1s
+  ignored: false
+- name: test_succeed
+  script: cat /etc/os-release
+  timeout: 1s
+  pattern: CentOS Linux 7
+  credentials:
+  - host: localhost
+    port: "2200"
+    user: vagrant
+    keyfile: .vagrant/machines/default/virtualbox/private_key
+    scriptresult: ""
+    scriptreturncode: 0
+    scripterror: ""
+    resultpatternmatch: 0
+  parsedtimeout: 1s
+  ignored: false
+- name: test_fail
+  script: cat /etc/os-release
+  timeout: 1s
+  pattern: Not An OS
+  credentials:
+  - host: localhost
+    port: "2200"
+    user: vagrant
+    keyfile: .vagrant/machines/default/virtualbox/private_key
+    scriptresult: ""
+    scriptreturncode: 0
+    scripterror: ""
+    resultpatternmatch: 0
+  parsedtimeout: 1s
+  ignored: false

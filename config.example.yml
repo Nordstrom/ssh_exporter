@@ -1,0 +1,11 @@
+version: v0
+scripts:
+  - name: name_for_pattern_query
+    script: echo "output script"
+    timeout: 5s
+    pattern: 'output [must|match|this]'
+    credentials:
+    - host: myhost.example.ext
+      port: 22
+      user: someuser
+      keyfile: /path/to/local/private.key

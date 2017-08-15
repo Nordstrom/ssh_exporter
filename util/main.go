@@ -1,4 +1,6 @@
+//
 // Copyright 2017 Nordstrom. All rights reserved.
+//
 
 //
 // ssh_exporter.util provides helper functions and types for ssh_exporter.
@@ -17,12 +19,12 @@ import (
 	"sync"
 	"time"
 
-	"gopkg.in/yaml.v2"
 	"golang.org/x/crypto/ssh"
+	"gopkg.in/yaml.v2"
 )
 
 //
-// Configruation file datastructure overview:
+// Configuration file datastructure overview:
 //
 // version: v0
 // scripts:
@@ -45,12 +47,12 @@ type Config struct {
 //
 // ScriptConfig stores information about a given script including the name
 // (which can be used to filter results on the /probe endpoint), Script,
-// Timeout, Pattern (which determins if the script failed or not), and
+// Timeout, Pattern (which determines if the script failed or not), and
 // Credentials (described below).
 //
 // In addition to the above, ParsedTimeout is the go Duration of the user
 // provided Timeout value and Ignored stores weather or not the script is run
-// for a given request; it is ignored if Name does not match the quer parameter
+// for a given request; it is ignored if Name does not match the query parameter
 // "pattern"
 //
 type ScriptConfig struct {
@@ -59,8 +61,8 @@ type ScriptConfig struct {
 	Timeout       string             `yaml:"timeout"`
 	Pattern       string             `yaml:"pattern"`
 	Credentials   []CredentialConfig `yaml:"credentials"`
-	ParsedTimeout time.Duration // For internal use only
-	Ignored       bool          // For internal use only 
+	ParsedTimeout time.Duration      // For internal use only
+	Ignored       bool               // For internal use only
 }
 
 //
@@ -73,14 +75,14 @@ type ScriptConfig struct {
 // ResultPatternMatch
 //
 type CredentialConfig struct {
-	Host    string `yaml:"host"`
-	Port    string `yaml:"port"`
-	User    string `yaml:"user"`
-	KeyFile string `yaml:"keyfile"`
-	ScriptResult         string // For internal use only 
-	ScriptReturnCode     int    // For internal use only 
-	ScriptError          string // For internal use only 
-        ResultPatternMatch   int8   // For internal use only 
+	Host               string `yaml:"host"`
+	Port               string `yaml:"port"`
+	User               string `yaml:"user"`
+	KeyFile            string `yaml:"keyfile"`
+	ScriptResult       string // For internal use only
+	ScriptReturnCode   int    // For internal use only
+	ScriptError        string // For internal use only
+	ResultPatternMatch int8   // For internal use only
 }
 
 //
@@ -98,7 +100,7 @@ func FatalCheck(e error) {
 // SoftCheck logs non-nil errors to stderr. Used for runtime errors that should
 // not kill the server.
 //
-func SoftCheck(e error) (bool) {
+func SoftCheck(e error) bool {
 
 	if e != nil {
 		LogMsg(fmt.Sprintf("%v", e))
@@ -123,7 +125,7 @@ func LogMsg(s string) {
 func ParseFlags(c, p *string) (*string, *string) {
 
 	flag.StringVar(c, "config", "config.yml", "Path to your ssh_exporter config file")
-	flag.StringVar(p, "port", "8007", "Port probed metrics are served on.")
+	flag.StringVar(p, "port", "9382", "Port probed metrics are served on.")
 
 	flag.Parse()
 
@@ -190,11 +192,11 @@ func BatchExecute(c *Config, p *regexp.Regexp) (Config, error) {
 	done.Wait()
 
 	for _, v := range c.Scripts {
-		if ! v.Ignored {
+		if !v.Ignored {
 			for _, _ = range v.Credentials {
 				select {
-				case <- t:
-				case <- time.After(v.ParsedTimeout):
+				case <-time.After(v.ParsedTimeout):
+				case <-t:
 				}
 			}
 		}
@@ -210,15 +212,15 @@ func BatchExecute(c *Config, p *regexp.Regexp) (Config, error) {
 func PrometheusFormatResponse(c Config) (string, error) {
 
 	var response string
-	exitStatusFormatStr   := "ssh_exporter_%s_exit_status{name=\"%s\",host=\"%s\",user=\"%s\",script=\"%s\",exit_status=%d} %d"
+	exitStatusFormatStr := "ssh_exporter_%s_exit_status{name=\"%s\",host=\"%s\",user=\"%s\",script=\"%s\",exit_status=%d} %d"
 	patternMatchFormatStr := "ssh_exporter_%s_pattern_match{name=\"%s\",host=\"%s\",user=\"%s\",script=\"%s\",regex=\"%s\"} %d"
 
-	exitStatusHelpStr   := "# HELP ssh_exporter_%s_exit_status Integer exit status of commands and metadata about the command's execution.\n# TYPE ssh_exporter gauge"
+	exitStatusHelpStr := "# HELP ssh_exporter_%s_exit_status Integer exit status of commands and metadata about the command's execution.\n# TYPE ssh_exporter gauge"
 	patternMatchHelpStr := "# HELP ssh_exporter_%s_pattern_match Boolean match of regex on output of script of commands and metadata about the command's execution.\n# TYPE ssh_exporter gauge"
 
 	for _, i := range c.Scripts {
 		if i.Ignored != true {
-			exitedDoc  := fmt.Sprintf(exitStatusHelpStr, i.Name)
+			exitedDoc := fmt.Sprintf(exitStatusHelpStr, i.Name)
 			matchedDoc := fmt.Sprintf(patternMatchHelpStr, i.Name)
 
 			response = fmt.Sprintf("%s%s", response, exitedDoc)
@@ -238,7 +240,6 @@ func PrometheusFormatResponse(c Config) (string, error) {
 	return response, nil
 }
 
-
 //
 // AdjustConfig makes small changes to ensure the config file provided is
 // consistent.
@@ -253,7 +254,7 @@ func adjustConfig(c Config) (Config, error) {
 		}
 
 		tmp, err := time.ParseDuration(c.Scripts[c_i].Timeout)
-		if ! SoftCheck(err) {
+		if !SoftCheck(err) {
 			c.Scripts[c_i].ParsedTimeout = tmp
 		} else {
 			LogMsg(fmt.Sprintf("Failed to parse `timeout` for %s. Default to 10s", c.Scripts[c_i].Name))
@@ -280,10 +281,10 @@ func executeScript(script, pattern string, creds *[]CredentialConfig, done *sync
 			result, status, err := executeScriptOnHost(c.Host, c.Port, c.User, c.KeyFile, script)
 
 			(*creds)[i].ScriptReturnCode = status
-			(*creds)[i].ScriptResult     = result
+			(*creds)[i].ScriptResult = result
 
 			if err != nil {
-				(*creds)[i].ScriptError  = fmt.Sprintf("%v", err)
+				(*creds)[i].ScriptError = fmt.Sprintf("%v", err)
 			}
 
 			if match.MatchString(result) {
@@ -313,7 +314,7 @@ func executeScriptOnHost(host, port, user, keyfile, script string) (string, int,
 	if SoftCheck(err) {
 		var errorStatusCode int
 		fmt.Sscanf(fmt.Sprintf("%v", err), "Process exited with status %d", &errorStatusCode)
-		 if errorStatusCode != 0 {
+		if errorStatusCode != 0 {
 			return "", errorStatusCode, err
 		} else {
 			return "", -1, err
@@ -371,7 +372,7 @@ func getKeyFile(keyfile string) (ssh.Signer, error) {
 }
 
 //
-// literalFormat formats a string to be included in an endpoint to be scraped by prometheus.
+// literalFormat formats a string to be included in an endpoint to be scraped by Prometheus.
 //
 // Turns newline characters into '\n' characters.
 //

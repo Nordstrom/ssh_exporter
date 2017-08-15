@@ -1,0 +1,6 @@
+# HELP ssh_exporter_scriptName_exit_status Integer exit status of commands and metadata about the command's execution.
+# TYPE ssh_exporter gauge
+ssh_exporter_scriptName_exit_status{name="scriptName",host="localhost",user="username",script="echo foo",exit_status=0} 0
+# HELP ssh_exporter_scriptName_pattern_match Boolean match of regex on output of script of commands and metadata about the command's execution.
+# TYPE ssh_exporter gauge
+ssh_exporter_scriptName_pattern_match{name="scriptName",host="localhost",user="username",script="echo foo",regex="foo"} 1
