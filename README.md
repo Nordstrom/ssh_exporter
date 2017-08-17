@@ -2,6 +2,10 @@
 
 The ssh exporter is a [Prometheus exporter][prom-exporter] developed by [Nordstorm][nord-gh] for running ssh commands on remote hosts and collecting statistics about the output of those commands.
 
+*This tool was built for very specific use-cases when the snmp_exporter, node_exporter, and the Prometheus pushgateway couldn't cut it.*
+*Before deciding to use this exporter, consider using a more specialized exporter insted.*
+*For more about this, check out the [Use with caution][caution] section of this README.*
+
 ## Usage
 
 ### Pre-requisites
@@ -148,7 +152,7 @@ $ go test -run 'Integration'
 To destroy the local vagrant host run the following:
 
 ```
-$ vagrant destroy   # Respond 'y' for yes at the prompt
+$ vagrant destroy   # Respond yes at the prompt
 ```
 
 ### All tests
@@ -158,6 +162,14 @@ For all tests, run the following:
 ```
 $ go test
 ```
+
+## Future work
+
+Some improvements that come to mind:
+
+- Safeguards ought to be implemented on the commands being run (beyond just timeout).
+- Addition of `script_files` to (more easily) run multi-command scripts.
+- Tests! Figure out a better integration test method.
 
 ## Author
 
@@ -183,3 +195,4 @@ limitations under the License.
 [nord-gh]: https://github.com/Nordstrom
 [vbox]: https://www.virtualbox.org/
 [vagrant]: https://vagrantup.com
+[caution]: #use-with-caution
