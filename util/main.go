@@ -60,6 +60,7 @@ type ScriptConfig struct {
 	Script        string             `yaml:"script"`
 	Timeout       string             `yaml:"timeout"`
 	Pattern       string             `yaml:"pattern"`
+	ReturnResult  bool               `yaml:"return_result"`
 	Credentials   []CredentialConfig `yaml:"credentials"`
 	ParsedTimeout time.Duration      // For internal use only
 	Ignored       bool               // For internal use only
@@ -214,24 +215,38 @@ func PrometheusFormatResponse(c Config) (string, error) {
 	var response string
 	exitStatusFormatStr := "ssh_exporter_%s_exit_status{name=\"%s\",host=\"%s\",user=\"%s\",script=\"%s\",exit_status=%d} %d"
 	patternMatchFormatStr := "ssh_exporter_%s_pattern_match{name=\"%s\",host=\"%s\",user=\"%s\",script=\"%s\",regex=\"%s\"} %d"
+	scriptValueFormatStr := "ssh_exporter_%s{name=\"%s\",host=\"%s\",user=\"%s\",script=\"%s\"} %s"
 
 	exitStatusHelpStr := "# HELP ssh_exporter_%s_exit_status Integer exit status of commands and metadata about the command's execution.\n# TYPE ssh_exporter gauge"
 	patternMatchHelpStr := "# HELP ssh_exporter_%s_pattern_match Boolean match of regex on output of script of commands and metadata about the command's execution.\n# TYPE ssh_exporter gauge"
+	scriptValueHelpStr := "# HELP ssh_exporter_%s Value of script output"
 
 	for _, i := range c.Scripts {
 		if i.Ignored != true {
 			exitedDoc := fmt.Sprintf(exitStatusHelpStr, i.Name)
 			matchedDoc := fmt.Sprintf(patternMatchHelpStr, i.Name)
+			valueDoc := fmt.Sprintf(scriptValueHelpStr, i.Name)
+			script := strings.Replace(i.Script, "%", "%%", -1)
 
 			response = fmt.Sprintf("%s%s", response, exitedDoc)
 			for _, j := range i.Credentials {
-				s := fmt.Sprintf(exitStatusFormatStr, i.Name, i.Name, j.Host, j.User, i.Script, j.ScriptReturnCode, j.ScriptReturnCode)
+				s := fmt.Sprintf(exitStatusFormatStr, i.Name, i.Name, j.Host, j.User, script, j.ScriptReturnCode, j.ScriptReturnCode)
 				response = fmt.Sprintf("%s\n%s", response, s)
 			}
 			response = fmt.Sprintf("%s\n%s", response, matchedDoc)
 			for _, j := range i.Credentials {
-				m := fmt.Sprintf(patternMatchFormatStr, i.Name, i.Name, j.Host, j.User, i.Script, i.Pattern, j.ResultPatternMatch)
+				m := fmt.Sprintf(patternMatchFormatStr, i.Name, i.Name, j.Host, j.User, script, i.Pattern, j.ResultPatternMatch)
 				response = fmt.Sprintf("%s\n%s", response, m)
+			}
+
+			response = fmt.Sprintf("%s\n", response, valueDoc)
+			if i.ReturnResult {
+				for _, j := range i.Credentials {
+					y := strings.TrimSpace(j.ScriptResult)
+					y = strings.Trim(y, "\\n")
+				        m := fmt.Sprintf(scriptValueFormatStr, i.Name, i.Name, j.Host, j.User, script, y)
+					response = fmt.Sprintf("%s\n%s", response, m)
+				}
 			}
 			response = fmt.Sprintf("%s\n", response)
 		}
