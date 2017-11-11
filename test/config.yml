@@ -6,7 +6,7 @@ scripts:
     pattern: 'output script'
     credentials:
     - host: 'localhost'
-      port: 2200
+      port: 2222
       user: 'vagrant'
       keyfile: '.vagrant/machines/default/virtualbox/private_key'
   - name: 'test_timeout'
@@ -15,7 +15,7 @@ scripts:
     pattern: 'expect timeout'
     credentials:
     - host: 'localhost'
-      port: '2200'
+      port: '2222'
       user: 'vagrant'
       keyfile: '.vagrant/machines/default/virtualbox/private_key'
   - name: 'test_succeed'
@@ -24,7 +24,7 @@ scripts:
     pattern: 'CentOS Linux 7'
     credentials:
     - host: 'localhost'
-      port: '2200'
+      port: '2222'
       user: 'vagrant'
       keyfile: '.vagrant/machines/default/virtualbox/private_key'
   - name: 'test_fail'
@@ -33,6 +33,6 @@ scripts:
     pattern: 'Not An OS'
     credentials:
     - host: 'localhost'
-      port: '2200'
+      port: '2222'
       user: 'vagrant'
       keyfile: '.vagrant/machines/default/virtualbox/private_key'
