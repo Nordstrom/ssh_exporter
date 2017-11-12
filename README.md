@@ -2,9 +2,14 @@
 
 The ssh exporter is a [Prometheus exporter][prom-exporter] developed by [Nordstorm][nord-gh] for running ssh commands on remote hosts and collecting statistics about the output of those commands.
 
-*This tool was built for very specific use-cases when the snmp_exporter, node_exporter, and the Prometheus pushgateway couldn't cut it.*
+## Use with caution
+
+*This tool was built for very specific edge case applications where you need to quickly get the results of some existing test script into Prometheus and existing exporters are not flexible enough.*
 *Before deciding to use this exporter, consider using a more specialized exporter insted.*
-*For more about this, check out the [Use with caution][caution] section of this README.*
+
+Any time you're executing arbitrary code on a host you should be careful.
+
+Double check that your commands are not liable to crash your systems, especially considering that **the commands will be run in parallel ssh connections**.
 
 ## Usage
 
@@ -33,7 +38,8 @@ import (
 
 ### Building the ssh exporter
 
-In a Unix terminal clone this repo and `cd` into the directory.
+Clone the repository via go ```go get github.com/Nordstrom/ssh_exporter``` or git (if cloning the repo by hand you will
+have to update your $GOPATH) and `cd` into the directory.
 Then build the `ssh_exporter` binary with the following commands.
 
 ```
@@ -42,14 +48,26 @@ $ go build
 
 If any packages are not installed, use `go get` to download them.
 
-### Configuration and execution
+### Configuration Options
 
-To start the exporter, first create a config file with the following format:
+#### \<version\>
+
+The version of the config file format. Currently supports one value
+```v0```
+
+#### \<scripts\>
+
+A list of scripts which might be executed by the exporter.
+
+##### \<name\>
+
+A name for the script to be executed. This is what is matched by the pattern URL variable.
+For example with the followig config:
 
 ```yaml
 version: v0
 scripts:
-  - name: name_for_pattern_query
+  - name: echo_output
     script: echo "output script"
     timeout: 5s
     pattern: 'output [matches|does not match] a regex'
@@ -59,10 +77,113 @@ scripts:
       user: someuser
       keyfile: /path/to/private/key
     - host: second.host.example.net
-      ...
-  - name: other_query
+  - name: ls_var_tmp
+    script: ls /var/tmp
     ...
 ```
+
+This request:
+```curl http://localhost:9382/probe?pattern=echo_output```
+
+Would execute
+```echo "output script"```
+
+And this request:
+```curl http://localhost:9382/probe?pattern=ls_var_tmp```
+
+Would likewise execute
+```ls /var/tmp```
+
+##### \<script\>
+
+The script to execute on the remote host
+
+##### \<timeout\>
+
+How long to wait for the command to complete.
+
+##### \<pattern\>
+
+A regex pattern to match against the command output. The normal model for scraping with Prometheus
+is to have the endpoint being scraped return statistical data which is stored rather than return a 
+pass/fail status. Then alerts or reports can be generated against that data. ssh_exporter is
+intended for edge case applications where you need to quickly get the results of some existing
+test into Prometheus. It is intended to aid organizations who are migrating from some other monitoring 
+solution to Prometheus. And since Prometheus stores numeric data and not text results the ssh_exporter
+compares \<pattern\> against the output of the command and returns a true or false.
+
+##### \<credentials\>
+
+A list of endpoints upon which the command specified in \<script\> will be executed.
+
+###### \<host\>
+
+The host name or IP address upon which to run the test.
+
+###### \<port\>
+
+The port upon which an ssh daemon is running on the remote host.
+
+###### \<user\>
+
+The user to connect as and run the command.
+
+###### \<keyfile\>
+
+The ssh private key to use for authentication.
+
+NOTE: ssh_exporter currently only supports private keys with no passphrase.
+
+#### Example
+
+**ssh_exporter config**
+```yaml
+version: v0
+scripts:
+  - name: echo_output
+    script: echo "This is my output!"
+    timeout: 5s
+    pattern: '.*output!'
+    credentials:
+    - host: host1.example.com
+      port: 22
+      user: someuser
+      keyfile: /path/to/private/key
+  - name: check_var_temp_for_tars
+    script: ls /var/tmp
+    timeout: 5s
+    pattern: '.*tgz'
+    credentials:
+    - host: myhost.example.com
+      port: 22
+      user: someuser
+      keyfile: /path/to/private/key
+    - host: host2.example.com
+      port: 22
+      user: someotheruser
+      keyfile: /path/to/other/private/key
+```
+
+**Prometheus config**
+
+```
+scrape_configs:
+  - job_name: 'ssh_exporter_check_output'
+    static_configs:
+      - targets: ['localhost:9382']
+    metrics_path: /probe
+    params:
+      pattern: ['echo_output']
+
+  - job_name: 'ssh_exporter_check_var_tmp'
+    static_configs:
+      - targets: ['localhost:9382']
+    metrics_path: /probe
+    params:
+      pattern: ['check_var_temp_for_tars']
+```
+
+### Running
 
 The config allows one to specify a list of scripts (with timeouts and match patterns) and a list of hosts to run that script on.
 Scripts are run in parallel with concurrent ssh connections on all configured hosts.
@@ -84,11 +205,18 @@ This will start the web server on `localhost:8888`.
 - `localhost:8888/probe?pattern=<regex-matcher-for-script-names>`: statistics based on the scripts in the configuration file
 - `localhost:8888/metrics`: meta-statics about the app itself.
 
-## Use with caution
+### Prometheus Configuration
 
-Any time you're executing arbitrary code on a host you should be careful.
+```
+scrape_configs:
+  - job_name: 'ssh_exporter'
+    static_configs:
+      - targets: ['localhost:9382']
+    metrics_path: /probe
+    params:
+      pattern: ['.*']
+```
 
-Double check that your commands are not liable to crash your systems, especially considering that **the commands will be run in parallel ssh connections**.
 
 ## Contributing
 
