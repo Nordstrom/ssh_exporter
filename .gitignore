@@ -1,7 +1,14 @@
 # Ignore the compiled binary if it exists
 ssh_exporter
 
-# Created by https://www.gitignore.io/api/go,vagrant,intellij,intellij+all
+# Ignore .nfs directories
+.nfs*
+
+# Vagrant will create a directory with the machine image it creates. We don't want that in git.
+.vagrant/
+
+
+# The rest created by https://www.gitignore.io/api/go,vagrant,intellij,intellij+all
 
 ### Go ###
 # Binaries for programs and plugins
