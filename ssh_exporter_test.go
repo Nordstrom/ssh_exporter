@@ -11,7 +11,7 @@ package main
 //
 
 import (
-	"./util"
+	"github.com/Nordstrom/ssh_exporter/util"
 
 	"fmt"
 	"io/ioutil"
@@ -98,7 +98,7 @@ func TestUnitParseConfig(t *testing.T) {
 //
 func TestUnitPrometheusFormatResponse(t *testing.T) {
 
-	fmt.Println("Running TestUnitPrometheusFormat")
+	fmt.Println("Running TestUnitPrometheusFormatResponse")
 
 	parsedTime, _ := time.ParseDuration("1s")
 
@@ -147,7 +147,7 @@ func TestUnitPrometheusFormatResponse(t *testing.T) {
 //
 func TestIntegrationHappyPath(t *testing.T) {
 
-	fmt.Println("Running TestIntegrationPrometheusFormat")
+	fmt.Println("Running TestIntegrationHappyPath")
 
 	// Make sure we have a binary to run
 	if _, err := os.Stat(binary); err != nil {

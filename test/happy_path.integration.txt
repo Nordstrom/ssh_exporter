@@ -1,24 +1,24 @@
 # HELP ssh_exporter_test_simple_exit_status Integer exit status of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
-ssh_exporter_test_simple_exit_status{name="test_simple",host="localhost",user="vagrant",script="echo output script",exit_status=0} 0
+ssh_exporter_test_simple_exit_status{name="test_simple",host="localhost",user="vagrant",script="echo output script",exit_status="0"} 0
 # HELP ssh_exporter_test_simple_pattern_match Boolean match of regex on output of script of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
 ssh_exporter_test_simple_pattern_match{name="test_simple",host="localhost",user="vagrant",script="echo output script",regex="output script"} 1
 # HELP ssh_exporter_test_timeout_exit_status Integer exit status of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
-ssh_exporter_test_timeout_exit_status{name="test_timeout",host="localhost",user="vagrant",script="sleep 100",exit_status=0} 0
+ssh_exporter_test_timeout_exit_status{name="test_timeout",host="localhost",user="vagrant",script="sleep 100",exit_status="0"} 0
 # HELP ssh_exporter_test_timeout_pattern_match Boolean match of regex on output of script of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
 ssh_exporter_test_timeout_pattern_match{name="test_timeout",host="localhost",user="vagrant",script="sleep 100",regex="expect timeout"} 0
 # HELP ssh_exporter_test_succeed_exit_status Integer exit status of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
-ssh_exporter_test_succeed_exit_status{name="test_succeed",host="localhost",user="vagrant",script="cat /etc/os-release",exit_status=0} 0
+ssh_exporter_test_succeed_exit_status{name="test_succeed",host="localhost",user="vagrant",script="cat /etc/os-release",exit_status="0"} 0
 # HELP ssh_exporter_test_succeed_pattern_match Boolean match of regex on output of script of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
 ssh_exporter_test_succeed_pattern_match{name="test_succeed",host="localhost",user="vagrant",script="cat /etc/os-release",regex="CentOS Linux 7"} 1
 # HELP ssh_exporter_test_fail_exit_status Integer exit status of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
-ssh_exporter_test_fail_exit_status{name="test_fail",host="localhost",user="vagrant",script="cat /etc/os-release",exit_status=0} 0
+ssh_exporter_test_fail_exit_status{name="test_fail",host="localhost",user="vagrant",script="cat /etc/os-release",exit_status="0"} 0
 # HELP ssh_exporter_test_fail_pattern_match Boolean match of regex on output of script of commands and metadata about the command's execution.
 # TYPE ssh_exporter gauge
 ssh_exporter_test_fail_pattern_match{name="test_fail",host="localhost",user="vagrant",script="cat /etc/os-release",regex="Not An OS"} 0
