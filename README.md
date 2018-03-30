@@ -299,6 +299,15 @@ Some improvements that come to mind:
 - Addition of `script_files` to (more easily) run multi-command scripts.
 - Tests! Figure out a better integration test method.
 
+## Cutting a release
+
+If you find yourself cutting a release don't panic, it's easy!
+
+0. Push a `git tag vX.Y.Z` to the repository.
+1. On your local computer get the repo setup. This will involve installing the dependencies listed at the top of the README.
+2. Run `make release`. This will create binaries for linux, darwin, and windows as well as a file with some sha256sums.
+3. Upload said binaries to a release targeting the `vX.Y.Z` tag.
+
 ## Author
 
 Nordstrom, Inc.
