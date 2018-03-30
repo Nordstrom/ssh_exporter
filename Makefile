@@ -13,11 +13,16 @@ windows:
 	GOOS=windows GOARCH=amd64 $(GOBUILD) -o 'ssh_exporter-windows-amd64' ssh_exporter.go
 
 sha256sum:
-	rm ssh_exporter-sha256.txt
+	-rm -f ssh_exporter-sha256.txt
 	shasum -a 256 ssh_exporter-* > 'ssh_exporter-sha256.txt'
 
 release: linux darwin windows sha256sum
 
+release-clean:
+	-rm -f ssh_exporter-*
+
+clean: release-clean
+
 .NOTPARALLEL:
 
-.PHONY: default linux darwin windows sha256sum release
+.PHONY: clean release-clean default linux darwin windows sha256sum release
