@@ -125,7 +125,7 @@ func LogMsg(s string) {
 func ParseFlags(c, p *string) (*string, *string) {
 
 	flag.StringVar(c, "config", "config.yml", "Path to your ssh_exporter config file")
-	flag.StringVar(p, "port", "9382", "Port probed metrics are served on.")
+	flag.StringVar(p, "port", "9428", "Port probed metrics are served on.")
 
 	flag.Parse()
 
