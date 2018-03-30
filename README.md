@@ -83,13 +83,13 @@ scripts:
 ```
 
 This request:
-```curl http://localhost:9382/probe?pattern=echo_output```
+```curl http://localhost:9428/probe?pattern=echo_output```
 
 Would execute
 ```echo "output script"```
 
 And this request:
-```curl http://localhost:9382/probe?pattern=ls_var_tmp```
+```curl http://localhost:9428/probe?pattern=ls_var_tmp```
 
 Would likewise execute
 ```ls /var/tmp```
@@ -170,14 +170,14 @@ scripts:
 scrape_configs:
   - job_name: 'ssh_exporter_check_output'
     static_configs:
-      - targets: ['localhost:9382']
+      - targets: ['localhost:9428']
     metrics_path: /probe
     params:
       pattern: ['echo_output']
 
   - job_name: 'ssh_exporter_check_var_tmp'
     static_configs:
-      - targets: ['localhost:9382']
+      - targets: ['localhost:9428']
     metrics_path: /probe
     params:
       pattern: ['check_var_temp_for_tars']
@@ -191,7 +191,7 @@ Scripts are run in parallel with concurrent ssh connections on all configured ho
 The default configuration file path is `./config.yml`.
 The `--config` flag overrides this option.
 
-The default port `ssh_exporter` hosts its data on is `9382`; the `--port` flag overrides this option.
+The default port `ssh_exporter` hosts its data on is `9428`; the `--port` flag overrides this option.
 
 After you have created a config file, start the endpoint server:
 
@@ -211,7 +211,7 @@ This will start the web server on `localhost:8888`.
 scrape_configs:
   - job_name: 'ssh_exporter'
     static_configs:
-      - targets: ['localhost:9382']
+      - targets: ['localhost:9428']
     metrics_path: /probe
     params:
       pattern: ['.*']

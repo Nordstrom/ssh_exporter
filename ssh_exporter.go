@@ -8,7 +8,7 @@ package main
 // Provides an HTTP endpoint to be consumed by Prometheus
 // which hosts pre-configured statistics found in config.yaml.
 //
-// Default endpoint: http://localhost:9382/probe?pattern=.*
+// Default endpoint: http://localhost:9428/probe?pattern=.*
 //
 
 import (

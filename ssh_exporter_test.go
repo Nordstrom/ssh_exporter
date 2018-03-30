@@ -32,7 +32,7 @@ const (
 	binary = "./ssh_exporter"
 
 	// Used to connect to the local server
-	address = "localhost:9382"
+	address = "localhost:9428"
 )
 
 //
