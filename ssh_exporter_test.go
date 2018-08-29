@@ -197,7 +197,7 @@ func TestIntegrationHappyPath(t *testing.T) {
 	// Make sure the status is correct
 	// If this fails we have weirder problems
 	if want, have := http.StatusOK, resp.StatusCode; want != have {
-		t.Errorf("Status code was not OK: %s != %s\n%s", want, have, string(data))
+		t.Errorf("Status code was not OK: %v != %v\n%s", want, have, string(data))
 		t.Fail()
 	}
 
