@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -178,18 +177,15 @@ func ParseQuery(w http.ResponseWriter, r *http.Request) (*regexp.Regexp, error) 
 //
 func BatchExecute(c *Config, p *regexp.Regexp) (Config, error) {
 
-	var done sync.WaitGroup
 	t := make(chan bool)
 
 	for i, v := range c.Scripts {
 		if p.MatchString(v.Name) != true {
 			c.Scripts[i].Ignored = true
 		} else {
-			go executeScript(v.Script, v.Pattern, &c.Scripts[i].Credentials, &done, t)
+			go executeScript(v.Script, v.Pattern, &c.Scripts[i].Credentials, t)
 		}
 	}
-
-	done.Wait()
 
 	for _, v := range c.Scripts {
 		if !v.Ignored {
@@ -271,13 +267,13 @@ func adjustConfig(c Config) (Config, error) {
 //
 // TLDR executeScript runs the  given script in parallel on all hosts.
 //
-func executeScript(script, pattern string, creds *[]CredentialConfig, done *sync.WaitGroup, t chan bool) {
+func executeScript(script, pattern string, creds *[]CredentialConfig, t chan bool) {
 
 	match, _ := regexp.Compile(pattern)
 
-	for i, c := range *creds {
-		done.Add(1)
-		go func() {
+	for ri, rc := range *creds {
+		go func(i int, c CredentialConfig) {
+
 			result, status, err := executeScriptOnHost(c.Host, c.Port, c.User, c.KeyFile, script)
 
 			(*creds)[i].ScriptReturnCode = status
@@ -294,9 +290,7 @@ func executeScript(script, pattern string, creds *[]CredentialConfig, done *sync
 			}
 
 			t <- true
-
-			done.Done()
-		}()
+		}(ri, rc)
 	}
 }
 
