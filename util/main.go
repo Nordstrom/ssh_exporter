@@ -321,6 +321,7 @@ func executeScriptOnHost(host, port, user, keyfile, script string) (string, int,
 		}
 	}
 	defer client.Close()
+	defer session.Close()
 
 	return literalFormat(string(out)), 0, nil
 
